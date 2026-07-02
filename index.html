@@ -503,15 +503,15 @@ const SETTINGS_DEFAULT = {
 // ---------- seed (historique confirmé) ----------
 function seed(){
   return { lots:[
-    {id:id(), ref:"CA20250449 · CL2", vague:"Vague 1", date:"2025-07", statut:"Payé", part:"ICERTI",
+    {id:id(), ref:"CA20250449 · CL2", vague:"Vague 1", date:"2025-07", statut:"Payé", part:"ICERTI", factHT:7949.24,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:12, kwh:0, ca:29329.85, charges:13448.82}},
-    {id:id(), ref:"CA20250494 · CL3", vague:"Vague 1", date:"2025-08", statut:"Payé", part:"ICERTI",
+    {id:id(), ref:"CA20250494 · CL3", vague:"Vague 1", date:"2025-08", statut:"Payé", part:"ICERTI", factHT:5491.10,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:10, kwh:0, ca:22511.97, charges:11541.83}},
-    {id:id(), ref:"CA20250543 · CL4", vague:"Vague 1", date:"2025-09", statut:"Payé", part:"ICERTI",
+    {id:id(), ref:"CA20250543 · CL4", vague:"Vague 1", date:"2025-09", statut:"Payé", part:"ICERTI", factHT:7269.36,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:12, kwh:0, ca:27187.93, charges:12665.18}},
-    {id:id(), ref:"CA20250587 · CL5", vague:"Vague 1", date:"2025-10", statut:"Payé", part:"ICERTI",
+    {id:id(), ref:"CA20250587 · CL5", vague:"Vague 1", date:"2025-10", statut:"Payé", part:"ICERTI", factHT:8287.31,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:13, kwh:0, ca:29772.86, charges:13216.45}},
-    {id:id(), ref:"CA20250652 · Madrid", vague:"Vague 1", date:"2025-11", statut:"Payé", part:"ICERTI",
+    {id:id(), ref:"CA20250652 · Madrid", vague:"Vague 1", date:"2025-11", statut:"Payé", part:"ICERTI", factHT:7044.99,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:9, kwh:0, ca:26379.42, charges:12304.90}},
     {id:id(), ref:"CA20250629 · CL6", vague:"Vague 2", date:"2026-01", statut:"Payé", part:"GreenFlex", est:true,
       mode:"agg", chargeLabel:"Pago CEE", agg:{nb:12, kwh:0, marge:17291.20}},
@@ -567,18 +567,20 @@ function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }c
 function compute(lot){
   const splitAV = (lot.splitAV ?? DEFAULTS.splitAV);
   const splitRN = 1 - splitAV;
+  const split = (marge)=>{ let pRN=marge*splitRN, pAV=marge*splitAV; if(lot.factHT!=null){ pRN=+lot.factHT; pAV=marge-pRN; } return {pAV,pRN,reel:lot.factHT!=null}; };
   if(lot.mode==="detail"){
     const prix=+lot.prixKwh, pago=+lot.pagoCEE, cout=(lot.coutM2 ?? DEFAULTS.coutM2);
     let kwh=0,m2=0,ca=0; (lot.actuaciones||[]).forEach(a=>{kwh+=+a.kwh||0; m2+=+a.m2||0; ca+=(+a.kwh||0)*prix;});
     const nb=(lot.actuaciones||[]).length;
-    const cPago=nb*pago, cMat=m2*cout, charges=cPago+cMat, marge=ca-charges;
-    return {nb,kwh,m2,ca,caKnown:true,charges,chargesKnown:true,cPago,cMat,marge,partAV:marge*splitAV,partRN:marge*splitRN,taux:ca?marge/ca:0,tauxKnown:true,splitAV,splitRN};
+    const cPago=nb*pago, cMat=m2*cout, charges=cPago+cMat, marge=ca-charges, sp=split(marge);
+    return {nb,kwh,m2,ca,caKnown:true,charges,chargesKnown:true,cPago,cMat,marge,partAV:sp.pAV,partRN:sp.pRN,commReel:sp.reel,taux:ca?marge/ca:0,tauxKnown:true,splitAV,splitRN};
   }
   const g=lot.agg||{}; const nb=+g.nb||0,kwh=+g.kwh||0;
   let ca,charges,marge,caKnown,chargesKnown;
   if(g.marge!=null){ marge=+g.marge||0; caKnown=(g.ca!=null); ca=caKnown?+g.ca:0; chargesKnown=(g.charges!=null); charges=chargesKnown?+g.charges:0; }
   else { ca=+g.ca||0; charges=+g.charges||0; marge=ca-charges; caKnown=true; chargesKnown=true; }
-  return {nb,kwh,m2:0,ca,caKnown,charges,chargesKnown,cPago:null,cMat:null,marge,partAV:marge*splitAV,partRN:marge*splitRN,taux:(caKnown&&ca)?marge/ca:0,tauxKnown:(caKnown&&ca>0),splitAV,splitRN};
+  const sp=split(marge);
+  return {nb,kwh,m2:0,ca,caKnown,charges,chargesKnown,cPago:null,cMat:null,marge,partAV:sp.pAV,partRN:sp.pRN,commReel:sp.reel,taux:(caKnown&&ca)?marge/ca:0,tauxKnown:(caKnown&&ca>0),splitAV,splitRN};
 }
 function visibleLots(){
   return state.lots.filter(l=>{
