@@ -10,6 +10,7 @@
 <!-- Accès privé : Firebase Authentication -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <style>
   .authgate{position:fixed;inset:0;z-index:99999;background:#14213A;display:flex;align-items:center;justify-content:center;padding:24px;font-family:"Inter",system-ui,sans-serif}
@@ -27,6 +28,7 @@
   .autherr{color:#C0392B;font-size:12.5px;margin-top:12px;min-height:16px;line-height:1.4}
   .authlogout{display:inline-flex;align-items:center;gap:8px}
   #authWho{font-size:12px;color:#8a8a8a}
+  #cloudStatus{font-size:12px;font-weight:600;white-space:nowrap}
 </style>
 <style>
   :root{
@@ -343,7 +345,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9m0 12-4-4m4 4 4-4M5 3h14"/></svg>Sauvegarde</button>
     <button class="btn btn-primary" id="btnAdd">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Nouveau lot</button>
-    <span class="authlogout"><span id="authWho"></span><button class="btn btn-ghost" id="authLogout" title="Se déconnecter">
+    <span class="authlogout"><span id="cloudStatus" title=""></span><span id="authWho"></span><button class="btn btn-ghost" id="authLogout" title="Se déconnecter">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Déconnexion</button></span>
   </div>
 
@@ -548,12 +550,12 @@ function seed(){
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:13, kwh:0, ca:29772.86, charges:13216.45}},
     {id:id(), ref:"CA20250652 · Madrid", vague:"Vague 1", date:"2025-11", statut:"Payé", part:"ICERTI", factHT:7044.99,
       mode:"agg", chargeLabel:"ICERTI (€/dossier)", agg:{nb:9, kwh:0, ca:26379.42, charges:12304.90}},
-    {id:id(), ref:"CA20250629 · CL6", vague:"Vague 2", date:"2026-01", statut:"Payé", part:"GreenFlex", est:true,
-      mode:"agg", chargeLabel:"Pago CEE", agg:{nb:12, kwh:0, marge:17291.20}},
-    {id:id(), ref:"CA20250650 · CL7", vague:"Vague 2", date:"2026-02", statut:"Payé", part:"GreenFlex", est:true,
-      mode:"agg", chargeLabel:"Pago CEE", agg:{nb:10, kwh:0, marge:14409.34}},
-    {id:id(), ref:"CA20260014 · CL8", vague:"Vague 2", date:"2026-03", statut:"Payé", part:"GreenFlex", est:true,
-      mode:"agg", chargeLabel:"Pago CEE", agg:{nb:12, kwh:0, marge:17291.20}},
+    {id:id(), ref:"CA20250629 · CL6", vague:"Vague 2", date:"2026-01", statut:"Payé", part:"GreenFlex",
+      mode:"agg", chargeLabel:"Pago CEE + matériaux", agg:{nb:12, kwh:0, ca:27132.57, charges:11049.34}},
+    {id:id(), ref:"CA20250650 · CL7", vague:"Vague 2", date:"2026-02", statut:"Payé", part:"GreenFlex",
+      mode:"agg", chargeLabel:"Pago CEE + matériaux", agg:{nb:10, kwh:0, ca:23655.38, charges:10224.94}},
+    {id:id(), ref:"CA20260014 · CL8", vague:"Vague 2", date:"2026-03", statut:"Payé", part:"GreenFlex",
+      mode:"agg", chargeLabel:"Pago CEE + matériaux", agg:{nb:12, kwh:0, ca:30593.97, charges:11115.90}},
     {id:id(), ref:"CA20260093 · CL10", vague:"Vague 3", date:"2026-06", statut:"Payé", part:"GreenFlex",
       mode:"detail", prixKwh:0.140, pagoCEE:174.30, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
       actuaciones:[
@@ -618,7 +620,47 @@ function migrate(s){
   }
   return s;
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} saveCloud(); }
+
+// ---------- Synchronisation Firestore (données partagées entre associés) ----------
+var _fsDb=null, _fsRef=null, _fsInit=false, _applyingRemote=false;
+function initFirestore(){
+  if(_fsInit) return; _fsInit=true;
+  try{
+    if(typeof firebase==="undefined" || !firebase.firestore){ setCloudStatus(false,"sdk"); return; }
+    _fsDb = firebase.firestore();
+    _fsRef = _fsDb.collection("crm").doc("state");
+    _fsRef.onSnapshot(function(doc){
+      if(doc && doc.exists){
+        var d=doc.data();
+        if(d && d.payload){
+          try{
+            var incoming=migrate(JSON.parse(d.payload));
+            _applyingRemote=true; state=incoming; _applyingRemote=false;
+            try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+            render(); setCloudStatus(true);
+          }catch(e){ console.warn("Firestore parse", e); }
+        }
+      } else {
+        // Première utilisation : on initialise la base partagée avec les données actuelles.
+        saveCloud(true); setCloudStatus(true);
+      }
+    }, function(err){ console.warn("Firestore onSnapshot", err); setCloudStatus(false, err&&err.code); });
+  }catch(e){ console.warn("initFirestore", e); setCloudStatus(false,"init"); }
+}
+function saveCloud(force){
+  if(!_fsRef) return;
+  if(_applyingRemote && !force) return;
+  try{
+    var u=(firebase.auth&&firebase.auth().currentUser)?firebase.auth().currentUser.email:"";
+    _fsRef.set({ payload: JSON.stringify(state), updatedAt: Date.now(), by: u||"" });
+  }catch(e){ console.warn("saveCloud", e); }
+}
+function setCloudStatus(ok, code){
+  var el=document.getElementById("cloudStatus"); if(!el) return;
+  if(ok){ el.textContent="● synchronisé"; el.style.color="#157A45"; el.title="Données partagées en temps réel (Firestore)"; }
+  else { el.textContent="● local"; el.style.color="#C0590F"; el.title="Firestore indisponible"+(code?(" — "+code):"")+" : données de ce navigateur uniquement"; }
+}
 
 // ---------- compute ----------
 function compute(lot){
@@ -1320,7 +1362,7 @@ render();
   try{ firebase.initializeApp(cfg); }catch(e){}
   var auth=firebase.auth();
   auth.onAuthStateChanged(function(user){
-    if(user){ gate.classList.add('hidden'); var w=document.getElementById('authWho'); if(w) w.textContent=user.email; }
+    if(user){ gate.classList.add('hidden'); var w=document.getElementById('authWho'); if(w) w.textContent=user.email; if(typeof initFirestore==='function') initFirestore(); }
     else { gate.classList.remove('hidden'); }
   });
   function login(){
