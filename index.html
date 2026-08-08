@@ -636,6 +636,13 @@ function seed(){
         ["José Sierra Vásquez",10561,46.79], ["Miguel Angel Barrio Augusto",23247,103],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260278 · G6", vague:"Vague 6", ccaa:"Galicia", date:"2026-03", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Raimundo Primo Primo",19101,108], ["Ermelinda Rodríguez Augusta",22119,98],
+        ["María Teresa Blanco Fernández",41077,182], ["María Fernández Fernández",16318,74],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
