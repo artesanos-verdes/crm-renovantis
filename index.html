@@ -159,6 +159,7 @@
   .b-dict{color:var(--st-dict);background:#DEF1F1}
   .b-prep{color:var(--st-prep);background:#F6EEDB}
   .b-fact{color:var(--st-fact);background:#F0E7F8}
+  .b-tofact{color:var(--rn-d);background:var(--rn-soft)}
   .rowact{display:flex;gap:4px;justify-content:flex-end}
   .iconbtn{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--faint);transition:.12s}
   .iconbtn:hover{background:#F0EEE7;color:var(--text)}
@@ -343,6 +344,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M9 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/></svg>CSV</button>
     <button class="btn btn-ghost" id="btnJSON">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9m0 12-4-4m4 4 4-4M5 3h14"/></svg>Sauvegarde</button>
+    <button class="btn btn-ghost" id="btnAddLot" title="Ajouter un lot de dépôt GreenFlex">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M12 10v6M9 13h6"/></svg>Ajouter un lot</button>
     <button class="btn btn-primary" id="btnAdd">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Nouveau lot</button>
     <span class="authlogout"><span id="cloudStatus" title=""></span><span id="authWho"></span><button class="btn btn-ghost" id="authLogout" title="Se déconnecter">
@@ -403,7 +406,7 @@
       <div class="fgrid-3">
         <div class="field"><label>Date (AAAA-MM)</label><input id="f_date" type="month"></div>
         <div class="field"><label>Statut</label><select id="f_statut">
-          <option>Prépa</option><option>Envoyé MITECO</option><option>Dictamen favorable</option><option>Payé</option><option>Facturé</option>
+          <option>Prépa</option><option>Envoyé MITECO</option><option>Dictamen favorable</option><option>À facturer</option><option>Payé</option><option>Facturé</option>
         </select></div>
         <div class="field"><label>Partenaire CEE</label><input id="f_part" placeholder="GreenFlex"></div>
       </div>
@@ -450,6 +453,49 @@
       <div style="display:flex;gap:10px">
         <button class="btn btn-ghost" id="cancelBtn">Annuler</button>
         <button class="btn btn-primary" id="saveBtn">Enregistrer le lot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL « AJOUTER UN LOT » (dépôt GreenFlex) -->
+<div class="ov" id="ovAdd">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-h">
+      <h2>Ajouter un lot</h2>
+      <button class="x" id="addClose" aria-label="Fermer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-b">
+      <div class="fgrid">
+        <div class="field"><label>Réf. GreenFlex</label><input id="al_ref" placeholder="ex. CA20260124"></div>
+        <div class="field"><label>Nom court</label><input id="al_name" placeholder="ex. G6, CL9"></div>
+      </div>
+      <div class="fgrid-3">
+        <div class="field"><label>CCAA</label><input id="al_ccaa" placeholder="ex. Galicia"></div>
+        <div class="field"><label>Date de dépôt</label><input id="al_date" type="date"></div>
+        <div class="field"><label>Statut</label><select id="al_statut">
+          <option>À facturer</option><option>Payé</option>
+        </select></div>
+      </div>
+      <div class="fgrid">
+        <div class="field"><label>Prix CAE (€/kWh)</label><input id="al_prix" class="num" type="number" step="0.001" value="0.140"></div>
+        <div class="field"><label>Pago CEE (€/dossier)</label><input id="al_pago" type="number" step="0.01" value="174.30"></div>
+      </div>
+
+      <div class="seclabel">Dossiers</div>
+      <div class="actu-head"><span>Bénéficiaire</span><span>kWh</span><span>m²</span><span></span></div>
+      <div id="al_list"></div>
+      <button class="addactu" id="al_add">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>Ajouter un dossier</button>
+
+      <div class="calc" id="al_calc"></div>
+    </div>
+    <div class="modal-f">
+      <span class="left" id="al_hint">Charges = Pago CEE/dossier + m² × 10 € · commission Renovantis 50 % + IVA.</span>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" id="al_cancel">Annuler</button>
+        <button class="btn btn-primary" id="al_save">Enregistrer le lot</button>
       </div>
     </div>
   </div>
@@ -527,6 +573,7 @@ const STATUS = {
   "Prépa":              {cls:"b-prep"},
   "Envoyé MITECO":      {cls:"b-mit"},
   "Dictamen favorable": {cls:"b-dict"},
+  "À facturer":         {cls:"b-tofact"},
   "Payé":               {cls:"b-paye"},
   "Facturé":            {cls:"b-fact"},
 };
@@ -1345,6 +1392,110 @@ document.getElementById("setClose").addEventListener("click",()=>document.getEle
 document.getElementById("setCancel").addEventListener("click",()=>document.getElementById("ovSet").classList.remove("show"));
 document.getElementById("ovSet").addEventListener("click",e=>{if(e.target.id==="ovSet")document.getElementById("ovSet").classList.remove("show");});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("ovSet").classList.remove("show");document.getElementById("ovDoc").classList.remove("show");}});
+
+/* ---------- modal « Ajouter un lot » (dépôt GreenFlex) ---------- */
+const ovAdd=document.getElementById("ovAdd");
+let addRows=[];
+function alBlank(){return {p:"",kwh:"",m2:""}}
+function alRender(){
+  document.getElementById("al_list").innerHTML=addRows.map((a,i)=>`<div class="actu-row" data-i="${i}">
+    <input class="ip" data-k="p" value="${(a.p||"").replace(/"/g,'&quot;')}" placeholder="Nom du bénéficiaire">
+    <input class="ip num" data-k="kwh" type="number" step="1" value="${a.kwh}" placeholder="kWh">
+    <input class="ip num" data-k="m2" type="number" step="0.01" value="${a.m2}" placeholder="m²">
+    <button class="rm" data-i="${i}" title="Retirer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
+  </div>`).join("");
+}
+function alRecalc(){
+  const prix=+document.getElementById("al_prix").value||0;
+  const pago=+document.getElementById("al_pago").value||0;
+  const cout=DEFAULTS.coutM2;                 // 10 €/m²
+  const iva=+state.settings.iva||21;
+  let nb=0,kwh=0,m2=0,ca=0;
+  addRows.forEach(a=>{
+    const filled=(a.p||"").trim()!==""||a.kwh!==""||a.m2!=="";
+    if(!filled) return;
+    const k=+a.kwh||0, q=+a.m2||0;
+    nb++; kwh+=k; m2+=q; ca+=k*prix;          // CA = Σ(kWh × prix)
+  });
+  const cPago=nb*pago, cMat=m2*cout, charges=cPago+cMat;   // charges = nbDossiers × pagoCEE + Σm² × 10
+  const marge=ca-charges;                                   // marge = CA − charges
+  const comm=marge*0.5, tva=comm*iva/100, ttc=comm+tva;    // commission Renovantis = marge × 50 % ; + IVA
+  document.getElementById("al_calc").innerHTML=
+    `<div class="calc-row"><span>Chiffre d'affaires CAE (${nb} dossier${nb>1?"s":""} × prix)</span><span class="v">${eur(ca)}</span></div>
+     <div class="calc-row"><span>Pago CEE (${nb} × ${eur(pago)})</span><span class="v">− ${eur(cPago)}</span></div>
+     <div class="calc-row"><span>Coût matériaux (${m2.toLocaleString("fr-FR",{maximumFractionDigits:2})} m² × ${eur(cout)})</span><span class="v">− ${eur(cMat)}</span></div>
+     <div class="calc-row tot"><span>Marge brute${ca?" · "+pct(ca?marge/ca:0):""}</span><span class="v">${eur(marge)}</span></div>
+     <div class="calc-split">
+       <div class="cs rn"><div class="k">Commission Renovantis (50%)</div><div class="v">${eur(comm)}</div></div>
+       <div class="cs av"><div class="k">+ IVA ${iva}% → à facturer TTC</div><div class="v">${eur(ttc)}</div></div>
+     </div>`;
+}
+document.getElementById("al_list").addEventListener("input",e=>{
+  const inp=e.target.closest(".ip"); if(!inp)return;
+  const i=+inp.closest(".actu-row").dataset.i, k=inp.dataset.k;
+  addRows[i][k]=inp.value; alRecalc();
+});
+document.getElementById("al_list").addEventListener("click",e=>{
+  const rm=e.target.closest(".rm"); if(!rm)return;
+  addRows.splice(+rm.dataset.i,1); if(!addRows.length)addRows.push(alBlank());
+  alRender(); alRecalc();
+});
+document.getElementById("al_add").addEventListener("click",()=>{addRows.push(alBlank());alRender();
+  const rows=document.querySelectorAll("#al_list .actu-row"); const last=rows[rows.length-1]; if(last)last.querySelector(".ip").focus();});
+["al_prix","al_pago"].forEach(idn=>document.getElementById(idn).addEventListener("input",alRecalc));
+
+function openAddLot(){
+  addRows=[alBlank(),alBlank()];
+  document.getElementById("al_ref").value="";
+  document.getElementById("al_name").value="";
+  document.getElementById("al_ccaa").value="";
+  document.getElementById("al_date").value=new Date().toISOString().slice(0,10);
+  document.getElementById("al_statut").value="À facturer";
+  document.getElementById("al_prix").value=DEFAULTS.prixKwh;
+  document.getElementById("al_pago").value=DEFAULTS.pagoCEE;
+  alRender(); alRecalc();
+  ovAdd.classList.add("show");
+  setTimeout(()=>document.getElementById("al_ref").focus(),50);
+}
+function closeAddLot(){ovAdd.classList.remove("show");}
+document.getElementById("btnAddLot").addEventListener("click",openAddLot);
+document.getElementById("addClose").addEventListener("click",closeAddLot);
+document.getElementById("al_cancel").addEventListener("click",closeAddLot);
+ovAdd.addEventListener("click",e=>{if(e.target===ovAdd)closeAddLot();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ovAdd.classList.contains("show"))closeAddLot();});
+
+document.getElementById("al_save").addEventListener("click",()=>{
+  const refGF=document.getElementById("al_ref").value.trim();
+  if(!refGF){toast("Indique la référence GreenFlex");document.getElementById("al_ref").focus();return;}
+  // refus si la réf GreenFlex existe déjà (partie avant « · » des lots existants)
+  const norm=s=>String(s||"").toLowerCase().replace(/\s+/g,"");
+  const exists=state.lots.some(l=>norm((l.ref||"").split(" · ")[0])===norm(refGF));
+  if(exists){toast("Cette réf GreenFlex existe déjà — enregistrement refusé");document.getElementById("al_ref").focus();return;}
+  const acts=addRows
+    .filter(a=>(a.p||"").trim()!==""||a.kwh!==""||a.m2!=="")
+    .map(a=>({p:(a.p||"").trim(),kwh:+a.kwh||0,m2:+a.m2||0}));
+  if(!acts.length){toast("Ajoute au moins un dossier");return;}
+  const name=document.getElementById("al_name").value.trim();
+  const lot={
+    id:id(),
+    ref: name ? (refGF+" · "+name) : refGF,
+    vague:"",
+    ccaa:document.getElementById("al_ccaa").value.trim(),
+    date:document.getElementById("al_date").value,
+    statut:document.getElementById("al_statut").value,
+    part:"GreenFlex",
+    mode:"detail",
+    prixKwh:+document.getElementById("al_prix").value||0,
+    pagoCEE:+document.getElementById("al_pago").value||0,
+    coutM2:DEFAULTS.coutM2,
+    splitAV:0.5,
+    chargeLabel:"Pago CEE (€/dossier)",
+    actuaciones:acts
+  };
+  state.lots.push(lot);
+  save(); render(); closeAddLot();
+  toast("Lot ajouté");
+});
 
 render();
 </script>
