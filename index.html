@@ -643,6 +643,19 @@ function seed(){
         ["María Teresa Blanco Fernández",41077,182], ["María Fernández Fernández",16318,74],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260264 · G5", vague:"Galicia 5", ccaa:"Galicia", date:"2026-04", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Jose Antonio Quiroga Peña",42038,232], ["Daniel Dieguez Barjacoba",19403,92],
+        ["Giuseppe Zanin",24775,124], ["Jose Manuel Rodriguez Ramos",22108,125],
+        ["José Manuel Casares Vidueira",25053,111], ["Norberto García Soutelo",25926,145],
+        ["Manuel Pérez Estevez",18282,81], ["Manuel Ferreira Dieguez",15917,90],
+        ["José López Rodríguez",42432,188], ["Maria Cristina Macia Gonzalves",17605,78],
+        ["Lidia Vazquez Alarcon",12727,63], ["Maria Sol Ogando Perez",29792,132],
+        ["María Patricia Castro Vazquez",46568,257], ["Maria Luisa Estevez Rodriguez",19874,107],
+        ["Maria Aurora Yañez Dominguez/Pablo",17526,115],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
@@ -859,7 +872,7 @@ function renderTable(lots, t){
       <td class="av-cell">${eur0(c.partAV)}</td>
       <td class="rn-cell">${eur0(c.partRN)}</td>
       <td><div class="rowact">
-        ${l.statut==="Payé"?`<button class="iconbtn docs" data-id="${l.id}" title="Documents Renovantis"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></button>`:""}
+        ${(l.statut==="Payé"||l.statut==="À facturer")?`<button class="iconbtn docs" data-id="${l.id}" title="Documents Renovantis"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></button>`:""}
         <button class="iconbtn edit" data-id="${l.id}" title="Modifier"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>
         <button class="iconbtn del" data-id="${l.id}" title="Supprimer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
       </div></td>
@@ -893,7 +906,7 @@ function renderTable(lots, t){
           : ` CA non communiqué dans la facture — marge issue de la facture Renovantis : <b>${eur(c.marge)}</b> (part Renovantis ${eur(c.partRN)})${l.est?" · répartition par lot estimée au prorata des dossiers":""}.`
       }</div>`;
     }
-    const docBtn = l.statut==="Payé"
+    const docBtn = (l.statut==="Payé"||l.statut==="À facturer")
       ? `<button class="btn btn-ghost docs" data-id="${l.id}" style="padding:6px 11px;font-size:12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Documents Renovantis</button>`
       : "";
     const sub=`<tr class="detail" data-for="${l.id}" style="display:none"><td colspan="12"><div class="detail-inner"><div class="dh" style="display:flex;justify-content:space-between;align-items:center">Détail — ${l.ref}${docBtn}</div>${det}</div></td></tr>`;
@@ -1309,7 +1322,7 @@ function fallbackCopy(t){const ta=document.createElement("textarea");ta.value=t;
 // ---- docs modal state ----
 let docLot=null, docLang="fr", docTab="appel";
 let appelSel=new Set(), appelAmount=null, appelNum="";
-function paidLots(){return state.lots.filter(l=>l.statut==="Payé");}
+function paidLots(){return state.lots.filter(l=>l.statut==="Payé"||l.statut==="À facturer");}
 function appelSelectedLots(){return state.lots.filter(l=>appelSel.has(l.id));}
 function appelCommissionHT(){ if(appelAmount!=null) return appelAmount; return appelSelectedLots().reduce((s,l)=>s+compute(l).partRN,0); }
 function openDocs(lid){
