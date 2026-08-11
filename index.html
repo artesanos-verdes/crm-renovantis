@@ -1305,7 +1305,13 @@ function openPrintWindow(inner){
   w.document.write(`<!doctype html><html lang="${docLang}"><head><meta charset="utf-8"><title>Document Renovantis</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>${DOC_STYLE}@page{size:A4;margin:0}html,body{margin:0;background:#fff}@media print{.pgbreak{page-break-after:always}}</style></head><body>${inner}</body></html>`);
+    <style>${DOC_STYLE}
+@page{size:A4;margin:0}
+html,body{margin:0;background:#fff}
+body{display:flex;flex-direction:column;align-items:center}
+.docroot{width:210mm;max-width:210mm;margin:0 auto;box-sizing:border-box;overflow:hidden}
+.pgbreak{width:210mm;margin:0 auto}
+@media print{body{display:block}.pgbreak{page-break-after:always}}</style></head><body>${inner}</body></html>`);
   w.document.close();w.focus();
   setTimeout(()=>{try{w.print();}catch(e){}},600);
   return w;
