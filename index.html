@@ -656,6 +656,17 @@ function seed(){
         ["Maria Aurora Yañez Dominguez/Pablo",17526,115],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260125 · CL11", vague:"", date:"2026-02", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.140, pagoCEE:174.30, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Esther Domínguez Muñoz",13648,64.26], ["María Mercedes Carracedo Noguero",17382,83],
+        ["Antonio Justo Castaño",32146,120], ["Amalia Blanco Carracedo",25340,121],
+        ["Antonia Justo Tomás",17073,68.46], ["Tomasa Bruña Granja",23380,93.2],
+        ["Ana Dieguez Corzos",17563,73.48], ["José Luis Granja Bruña",11518,55],
+        ["María Arsita Díaz Carracedo",22444,90], ["José Dieguez Carracedo",14303,64],
+        ["Rafael Vara Fernandez",19328,118],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
