@@ -667,6 +667,18 @@ function seed(){
         ["Rafael Vara Fernandez",19328,118],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260307 · G9", vague:"Galicia 9", ccaa:"Galicia", date:"2026-05", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["AUREA FERNANDEZ LUIS/MARIA RODRIGUEZ DOS ANGELES",14560,82.67], ["Maria Jose Rodriguez Sanchez (Ubalda Vidueira García)",15200,79],
+        ["Maria Jesus Laranjo Carballal (Isacc Gonzalez)",29801,187.31], ["María La Salete Da Silva Faria",18040,102],
+        ["Martina Bembibre Asenjo",12161,83], ["Maria Teresa Garcia Castro",14914,104],
+        ["ROGELIO BOUZAS FERNANDEZ/HERMELINDA",30079,166], ["ANGELA RODRIGUEZ GOMEZ",11049,69.45],
+        ["Carmen Garcia Rodriguez",29341,130], ["Maria Helena Prada Yañez",32141,171],
+        ["DOMINGO SALGADO CARRASCO / MARIA DEL CARMEN SALGADO C",25730,142], ["LISARDO GARCIA ALVAREZ",20078,114],
+        ["JUAN JOSE GUERRA DA SILVA",51821,244],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
