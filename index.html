@@ -679,6 +679,19 @@ function seed(){
         ["JUAN JOSE GUERRA DA SILVA",51821,244],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260265 · G4", vague:"Galicia 4", ccaa:"Galicia", date:"2026-03", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Jose Antonio Barja Sanchez",11397,51], ["Jose Macia Dominguez",15815,71],
+        ["Francisco Ballesteros Blanco",11962,53], ["Antonia Coutiño Martínez",26891,120.73],
+        ["Antonia Dominguez García",15019,86], ["Angel Rodríguez Barja",6593,55],
+        ["José Ramón Baldín García",17639,101], ["Antonio Fernandez Fernandez",16970,84],
+        ["Francisco José Casares Dominguez",6275,32], ["Laura María González Ballesteros",21216,94],
+        ["Daniel Dieguez Barjacoba (CASTRO DO 31)",18924,107], ["Concepción Barrio Augusto",32405,145],
+        ["Isidoro Perez Yañez",43397,162], ["Maria Rosa Coutiño Coutiño (CADAVOS 24)",15111,66.95],
+        ["Manuel Ferreira Dieguez CASTROMIL 10",49774,199],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
