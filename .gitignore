@@ -1,0 +1,13 @@
+# Données / exports (à ne jamais committer)
+*.json
+!firebase-config.example.json
+crm-renovantis-*.json
+*.pdf
+*.html
+!index.html
+
+# macOS
+.DS_Store
+
+# Dossiers de ressources exportées
+Artesanos*_files/
