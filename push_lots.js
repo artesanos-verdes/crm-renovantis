@@ -31,32 +31,18 @@ const A = arr => arr.map(a => ({ p: a[0], kwh: a[1], m2: a[2] }));
 // --- Lots à insérer (ignorés s'ils existent déjà) ---
 const LOTS = [
   {
-    ref: "CA20260307 · G9", vague: "Galicia 9", ccaa: "Galicia", date: "2026-05",
+    ref: "CA20260255 · G3", vague: "Galicia 3", ccaa: "Galicia", date: "2026-03",
     statut: "À facturer", part: "GreenFlex", mode: "detail",
     prixKwh: 0.145, pagoCEE: 165.60, coutM2: 10, splitAV: 0.5, chargeLabel: "Pago CEE (€/dossier)",
     actuaciones: A([
-      ["AUREA FERNANDEZ LUIS/MARIA RODRIGUEZ DOS ANGELES",14560,82.67],["Maria Jose Rodriguez Sanchez (Ubalda Vidueira García)",15200,79],
-      ["Maria Jesus Laranjo Carballal (Isacc Gonzalez)",29801,187.31],["María La Salete Da Silva Faria",18040,102],
-      ["Martina Bembibre Asenjo",12161,83],["Maria Teresa Garcia Castro",14914,104],
-      ["ROGELIO BOUZAS FERNANDEZ/HERMELINDA",30079,166],["ANGELA RODRIGUEZ GOMEZ",11049,69.45],
-      ["Carmen Garcia Rodriguez",29341,130],["Maria Helena Prada Yañez",32141,171],
-      ["DOMINGO SALGADO CARRASCO / MARIA DEL CARMEN SALGADO C",25730,142],["LISARDO GARCIA ALVAREZ",20078,114],
-      ["JUAN JOSE GUERRA DA SILVA",51821,244],
-    ]),
-  },
-  {
-    ref: "CA20260265 · G4", vague: "Galicia 4", ccaa: "Galicia", date: "2026-03",
-    statut: "À facturer", part: "GreenFlex", mode: "detail",
-    prixKwh: 0.145, pagoCEE: 165.60, coutM2: 10, splitAV: 0.5, chargeLabel: "Pago CEE (€/dossier)",
-    actuaciones: A([
-      ["Jose Antonio Barja Sanchez",11397,51],["Jose Macia Dominguez",15815,71],
-      ["Francisco Ballesteros Blanco",11962,53],["Antonia Coutiño Martínez",26891,120.73],
-      ["Antonia Dominguez García",15019,86],["Angel Rodríguez Barja",6593,55],
-      ["José Ramón Baldín García",17639,101],["Antonio Fernandez Fernandez",16970,84],
-      ["Francisco José Casares Dominguez",6275,32],["Laura María González Ballesteros",21216,94],
-      ["Daniel Dieguez Barjacoba (CASTRO DO 31)",18924,107],["Concepción Barrio Augusto",32405,145],
-      ["Isidoro Perez Yañez",43397,162],["Maria Rosa Coutiño Coutiño (CADAVOS 24)",15111,66.95],
-      ["Manuel Ferreira Dieguez CASTROMIL 10",49774,199],
+      ["Anibal Sierra Rodríguez",16448,93],["Maria Rosa Coutiño Coutiño CADAVOS 52",16928,75],
+      ["José Jaime Yañez Sierra",18924,107],["Amando Prieto Bruña",15960,79],
+      ["Eduardo García Piornedo",28438,126],["Dosinda García Pérez",17830,79],
+      ["Eloy Vazquez Prieto",28980,107],["Cristina Baldin Marin",17823,72.11],
+      ["Rosana Leticia Molina Jijón/Allen",23821,95.24],["Tamara Ballesteros Vidueira",20087,89],
+      ["Ana María Mauri Santiuste",23021,102],["María Luisa Estevez Rodríguez",20457,95],
+      ["Jose Avelino Alves Pinto De Caraballo",19847,90],["Manuel Perez Estevez AV CONST 10",36563,162],
+      ["José Luis Macia Da Silva",20539,91],
     ]),
   },
 ];

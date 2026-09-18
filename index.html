@@ -692,6 +692,19 @@ function seed(){
         ["Manuel Ferreira Dieguez CASTROMIL 10",49774,199],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    {id:id(), ref:"CA20260255 · G3", vague:"Galicia 3", ccaa:"Galicia", date:"2026-03", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Anibal Sierra Rodríguez",16448,93], ["Maria Rosa Coutiño Coutiño CADAVOS 52",16928,75],
+        ["José Jaime Yañez Sierra",18924,107], ["Amando Prieto Bruña",15960,79],
+        ["Eduardo García Piornedo",28438,126], ["Dosinda García Pérez",17830,79],
+        ["Eloy Vazquez Prieto",28980,107], ["Cristina Baldin Marin",17823,72.11],
+        ["Rosana Leticia Molina Jijón/Allen",23821,95.24], ["Tamara Ballesteros Vidueira",20087,89],
+        ["Ana María Mauri Santiuste",23021,102], ["María Luisa Estevez Rodríguez",20457,95],
+        ["Jose Avelino Alves Pinto De Caraballo",19847,90], ["Manuel Perez Estevez AV CONST 10",36563,162],
+        ["José Luis Macia Da Silva",20539,91],
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
