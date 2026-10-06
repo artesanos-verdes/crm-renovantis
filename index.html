@@ -204,7 +204,7 @@
   .modeswitch button.on{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
   .hint{font-size:11.5px;color:var(--faint);margin-top:-7px;margin-bottom:12px}
 
-  .actu-head,.actu-row{display:grid;grid-template-columns:1fr 110px 84px 34px;gap:8px;align-items:center}
+  .actu-head,.actu-row{display:grid;grid-template-columns:1fr 100px 76px 96px 84px 34px;gap:8px;align-items:center}
   .actu-head{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600;padding:0 2px 6px}
   .actu-head span:nth-child(n+2){text-align:right}
   .actu-row{margin-bottom:7px}
@@ -428,7 +428,7 @@
       <!-- DETAIL mode -->
       <div id="detailBlock">
         <div class="seclabel">Actuaciones</div>
-        <div class="actu-head"><span>Propriétaire (ahorro inicial)</span><span>kWh</span><span>m²</span><span></span></div>
+        <div class="actu-head"><span>Propriétaire (ahorro inicial)</span><span>kWh</span><span>m²</span><span>Perito</span><span>Pago CEE</span><span></span></div>
         <div id="actuList"></div>
         <button class="addactu" id="addActu">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>Ajouter une actuación</button>
@@ -578,6 +578,9 @@ const STATUS = {
   "Facturé":            {cls:"b-fact"},
 };
 const DEFAULTS = {coutM2:10, prixKwh:0.140, pagoCEE:174.30, splitAV:0.5};
+// Pago CEE propre à l'actuación (ex. perito Termogenia ≠ Icerti), sinon celui du lot
+const pagoOf=(a,lot)=>(a.pago!=null&&a.pago!=="")?+a.pago:+lot.pagoCEE;
+const peritoTag=a=>a.perito?` <span style="color:var(--faint);font-size:.85em">· ${esc(a.perito)}</span>`:"";
 const SETTINGS_DEFAULT = {
   renovantis:{name:"RENOVANTIS S.L", rcs:"B21729827", capital:"3 000 €", address:"C Lepant 270\n08013 Barcelona, España", email:"m.gabay@renovantis.es", iban:"ES21 1583 0001 1493 5329 8227", bic:"REVOESM2"},
   artesanos:{name:"LOS ARTESANOS VERDES SL", siret:"B75651240", address:"Calle Castell d'Olimbroi, núm 30\n03700 Denia, España", email:"jonathan@artesanosverdes.com"},
@@ -787,7 +790,7 @@ function compute(lot){
     const prix=+lot.prixKwh, pago=+lot.pagoCEE, cout=(lot.coutM2 ?? DEFAULTS.coutM2);
     let kwh=0,m2=0,ca=0; (lot.actuaciones||[]).forEach(a=>{kwh+=+a.kwh||0; m2+=+a.m2||0; ca+=(+a.kwh||0)*prix;});
     const nb=(lot.actuaciones||[]).length;
-    const cPago=nb*pago, cMat=m2*cout, charges=cPago+cMat, marge=ca-charges, sp=split(marge);
+    const cPago=(lot.actuaciones||[]).reduce((s,a)=>s+pagoOf(a,lot),0), cMat=m2*cout, charges=cPago+cMat, marge=ca-charges, sp=split(marge);
     return {nb,kwh,m2,ca,caKnown:true,charges,chargesKnown:true,cPago,cMat,marge,partAV:sp.pAV,partRN:sp.pRN,commReel:sp.reel,taux:ca?marge/ca:0,tauxKnown:true,splitAV,splitRN};
   }
   const g=lot.agg||{}; const nb=+g.nb||0,kwh=+g.kwh||0;
@@ -937,11 +940,11 @@ function renderTable(lots, t){
         <th style="text-align:right;color:var(--av)">Artesanos</th><th style="text-align:right;color:var(--rn)">Renovantis</th>
       </tr></thead><tbody>`+
       l.actuaciones.map((a,i)=>{
-        const ca=(+a.kwh)*(+l.prixKwh), cm=(+a.m2)*cout, mb=ca-(+l.pagoCEE)-cm;
+        const ca=(+a.kwh)*(+l.prixKwh), cm=(+a.m2)*cout, mb=ca-pagoOf(a,l)-cm;
         return `<tr><td class="l" style="text-align:left;color:var(--faint)">${i+1}</td><td class="l" style="text-align:left">${a.p}</td>
           <td class="money" style="text-align:right">${num(a.kwh)}</td>
           <td class="money" style="text-align:right">${eur(ca)}</td>
-          <td class="money" style="text-align:right;color:var(--muted)">${eur(+l.pagoCEE)}</td>
+          <td class="money" style="text-align:right;color:var(--muted)">${eur(pagoOf(a,l))}${peritoTag(a)}</td>
           <td class="money" style="text-align:right">${(+a.m2).toLocaleString("fr-FR",{minimumFractionDigits:2})}</td>
           <td class="money" style="text-align:right;color:var(--muted)">${eur(cm)}</td>
           <td class="money" style="text-align:right;font-weight:600">${eur(mb)}</td>
@@ -1000,7 +1003,7 @@ function removeLot(lid){
 const ov=document.getElementById("ov");
 let editingId=null, formMode="detail";
 
-function blankActu(){return {p:"",kwh:"",m2:""}}
+function blankActu(){return {p:"",kwh:"",m2:"",perito:"",pago:""}}
 let draftActus=[];
 
 function setMode(m){
@@ -1022,6 +1025,8 @@ function renderActus(){
     <input class="ip" data-k="p" value="${(a.p||"").replace(/"/g,'&quot;')}" placeholder="Nom du propriétaire">
     <input class="ip num" data-k="kwh" type="number" step="1" value="${a.kwh}" placeholder="kWh">
     <input class="ip num" data-k="m2" type="number" step="0.01" value="${a.m2}" placeholder="m²">
+    <input class="ip" data-k="perito" value="${(a.perito||"").replace(/"/g,'&quot;')}" placeholder="Icerti…">
+    <input class="ip num" data-k="pago" type="number" step="0.01" value="${a.pago??""}" placeholder="lot">
     <button class="rm" data-i="${i}" title="Retirer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
   </div>`).join("");
 }
@@ -1049,7 +1054,7 @@ function readForm(){
     const prix=+document.getElementById("f_prix").value||0;
     const pago=+document.getElementById("f_pago").value||0;
     const cout=+document.getElementById("f_cout").value||0;
-    const acts=draftActus.filter(a=>(a.p||"").trim()!==""||a.kwh!==""||a.m2!=="").map(a=>({p:a.p,kwh:+a.kwh||0,m2:+a.m2||0}));
+    const acts=draftActus.filter(a=>(a.p||"").trim()!==""||a.kwh!==""||a.m2!=="").map(a=>{const o={p:a.p,kwh:+a.kwh||0,m2:+a.m2||0}; if((a.perito||"").trim())o.perito=a.perito.trim(); if(a.pago!==""&&a.pago!=null)o.pago=+a.pago; return o;});
     return {mode:"detail",prixKwh:prix,pagoCEE:pago,coutM2:cout,splitAV,actuaciones:acts,chargeLabel:document.getElementById("lab_charge").textContent};
   }
   return {mode:"agg",splitAV,chargeLabel:"charges",agg:{
@@ -1060,7 +1065,7 @@ function recalc(){
   const partial=readForm(); const c=compute(partial);
   let extra="";
   if(partial.mode==="detail"){
-    extra=`<div class="calc-row"><span>Pago CEE (${c.nb} × ${eur(+document.getElementById("f_pago").value||0)})</span><span class="v">− ${eur(c.cPago||0)}</span></div>
+    extra=`<div class="calc-row"><span>Pago CEE (${c.nb} dossiers${partial.actuaciones.some(a=>a.pago!=null)?", tarifs par perito":" × "+eur(+document.getElementById("f_pago").value||0)})</span><span class="v">− ${eur(c.cPago||0)}</span></div>
            <div class="calc-row"><span>Coût matériaux (${(c.m2).toLocaleString("fr-FR",{maximumFractionDigits:2})} m² × ${eur(+document.getElementById("f_cout").value||0)})</span><span class="v">− ${eur(c.cMat||0)}</span></div>`;
   } else {
     extra=`<div class="calc-row"><span>Charges saisies</span><span class="v">− ${eur(c.charges)}</span></div>`;
@@ -1100,7 +1105,7 @@ function openModal(lid){
     draftActus=[blankActu()];
   }else{
     ["a_nb","a_kwh","a_ca","a_charges"].forEach(i=>document.getElementById(i).value="");
-    draftActus = (l&&l.actuaciones&&l.actuaciones.length)? l.actuaciones.map(a=>({p:a.p,kwh:a.kwh,m2:a.m2})) : [blankActu(),blankActu()];
+    draftActus = (l&&l.actuaciones&&l.actuaciones.length)? l.actuaciones.map(a=>({p:a.p,kwh:a.kwh,m2:a.m2,perito:a.perito||"",pago:a.pago??""})) : [blankActu(),blankActu()];
   }
   renderActus();
   setMode(l? l.mode : "detail");
@@ -1318,8 +1323,8 @@ function docDetail(lang){
   let body;
   if(single){
     const lot=single, c=compute(lot), cout=lot.coutM2??DEFAULTS.coutM2;
-    const rows=lot.actuaciones.map((a,i)=>{const ca=(+a.kwh)*(+lot.prixKwh),cm=(+a.m2)*cout,mb=ca-(+lot.pagoCEE)-cm;
-      return `<tr><td class="l">${i+1}</td><td class="l">${esc(a.p)}</td><td>${numL(a.kwh,lang)}</td><td>${eurL(ca,lang)}</td><td>${eurL(+lot.pagoCEE,lang)}</td><td>${m2L(+a.m2,lang)}</td><td>${eurL(cm,lang)}</td><td>${eurL(mb,lang)}</td><td>${eurL(mb*c.splitRN,lang)}</td></tr>`;}).join("");
+    const rows=lot.actuaciones.map((a,i)=>{const ca=(+a.kwh)*(+lot.prixKwh),cm=(+a.m2)*cout,mb=ca-pagoOf(a,lot)-cm;
+      return `<tr><td class="l">${i+1}</td><td class="l">${esc(a.p)}</td><td>${numL(a.kwh,lang)}</td><td>${eurL(ca,lang)}</td><td>${eurL(pagoOf(a,lot),lang)}${a.perito?" ("+esc(a.perito)+")":""}</td><td>${m2L(+a.m2,lang)}</td><td>${eurL(cm,lang)}</td><td>${eurL(mb,lang)}</td><td>${eurL(mb*c.splitRN,lang)}</td></tr>`;}).join("");
     body=`<table class="dt"><thead><tr><th class="l">#</th><th class="l">${t.th_prop}</th><th>${t.th_kwh}</th><th>${t.th_cae}</th><th>${t.th_pago}</th><th>${t.th_m2}</th><th>${t.th_mat}</th><th>${t.th_marge}</th><th>${t.th_rn}</th></tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr><td class="l" colspan="2">${t.total}</td><td>${numL(c.kwh,lang)}</td><td>${eurL(c.ca,lang)}</td><td>${eurL(c.cPago,lang)}</td><td>${m2L(c.m2,lang)}</td><td>${eurL(c.cMat,lang)}</td><td>${eurL(c.marge,lang)}</td><td>${eurL(c.partRN,lang)}</td></tr></tfoot></table>`;
