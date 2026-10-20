@@ -715,10 +715,10 @@ function seed(){
     {id:id(), ref:"CA20260414 · G11", vague:"Galicia 11", ccaa:"Galicia", date:"2026-06", statut:"À facturer", part:"GreenFlex",
       mode:"detail", prixKwh:0.145, pagoCEE:165.60, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
       actuaciones:[
-        ["Purificacion Fernandez Nuñez",34727,177], ["Angelita Alvarez Vaquero (RES010)",55880,888.39,4450.31],
+        ["Purificacion Fernandez Nuñez",34727,177], ["Angelita Alvarez Vaquero (RES010)",55880,322],
         ["MARIA DEL CARMEN FERNANDEZ YAÑEZ (LG CARREETERA 37)",9705,61], ["DOMINGO SALGADO CARRACEDO (DA PENA 24)",22162,108],
         ["Domingo Pousada Nuñez",33415,204], ["Maria del Rosario Nieves Martinez",17925,125],
-      ].map(a=>a[3]==null?{p:a[0],kwh:a[1],m2:a[2]}:{p:a[0],kwh:a[1],m2:a[2],mat:a[3]})
+      ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
     // Dossiers « Comercial Renovantis » seulement (hors Sacha ×3 et FHE ×1)
     {id:id(), ref:"CA20260308 · CL14", vague:"CL 14", ccaa:"Castilla y León", date:"2026-05", statut:"À facturer", part:"GreenFlex",
@@ -735,6 +735,20 @@ function seed(){
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
+
+// Lots débloqués à verser dans la base partagée depuis le seed : importés une seule fois par réf GreenFlex
+// (state.imported en garde la trace, un lot supprimé ensuite ne revient pas)
+const PENDING_REFS=["CA20260414","CA20260308"];
+const refKey=r=>String(r||"").split(" · ")[0].toLowerCase().replace(/\s+/g,"");
+function importPending(){
+  const done=state.imported||(state.imported=[]), lots=seed().lots; let changed=false;
+  PENDING_REFS.map(refKey).filter(k=>!done.includes(k)).forEach(k=>{
+    done.push(k); changed=true;
+    const lot=lots.find(l=>refKey(l.ref)===k);
+    if(lot && !state.lots.some(l=>refKey(l.ref)===k)) state.lots.push(lot);
+  });
+  return changed;
+}
 
 let state = load();
 let filter = "Tous";
@@ -780,6 +794,7 @@ function initFirestore(){
           try{
             var incoming=migrate(JSON.parse(d.payload));
             _applyingRemote=true; state=incoming; _applyingRemote=false;
+            if(importPending()) saveCloud(true);
             try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
             render(); setCloudStatus(true);
           }catch(e){ console.warn("Firestore parse", e); }

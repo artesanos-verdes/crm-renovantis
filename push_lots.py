@@ -44,8 +44,7 @@ LOTS = [
         "prixKwh": 0.145, "pagoCEE": 165.60, "coutM2": 10, "splitAV": 0.5, "chargeLabel": "Pago CEE (€/dossier)",
         "actuaciones": A([
             ["Purificacion Fernandez Nuñez", 34727, 177],
-            # RES010 : coût matériaux = inversión du PDF (888,39 m² × 10 € dépasserait le CA)
-            ["Angelita Alvarez Vaquero (RES010)", 55880, 888.39, 4450.31],
+            ["Angelita Alvarez Vaquero (RES010)", 55880, 322],  # surface isolée déclarée (CRM Artesanos Verdes)
             ["MARIA DEL CARMEN FERNANDEZ YAÑEZ (LG CARREETERA 37)", 9705, 61],
             ["DOMINGO SALGADO CARRACEDO (DA PENA 24)", 22162, 108],
             ["Domingo Pousada Nuñez", 33415, 204], ["Maria del Rosario Nieves Martinez", 17925, 125],
