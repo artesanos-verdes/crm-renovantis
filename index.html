@@ -91,6 +91,15 @@
   .split-legend span{color:#C3D1E2}
   .dotg,.doto{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
   .dotg{background:#1FA35C}.doto{background:#D2660F}
+  /* Dû à Renovantis (lots « À facturer ») */
+  .due{grid-column:2 / 4;display:flex;align-items:center;justify-content:space-between;gap:6px 16px;flex-wrap:wrap;margin-top:12px;
+    padding:12px 16px;border-radius:12px;background:rgba(210,102,15,.12);border:1px solid rgba(210,102,15,.45);
+    color:inherit;font:inherit;text-align:left;cursor:pointer;transition:.15s}
+  .due:hover,.due.on{background:rgba(210,102,15,.22);border-color:#D2660F}
+  .due .l-label{display:block;color:#F2B27A}
+  .due-sub{display:block;font-size:12px;color:#C3D1E2;margin-top:5px}
+  .due-amt{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:26px;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+  .due-amt small{font-size:13px;color:#F2B27A;margin-left:6px}
 
   /* ============ TOOLBAR ============ */
   .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:20px 0 14px}
@@ -238,7 +247,7 @@
   @media (max-width:880px){
     .ledger{grid-template-columns:1fr;gap:18px}
     .ledger .big{grid-column:auto;grid-row:auto}
-    .split{grid-column:auto}
+    .split,.due{grid-column:auto}
     .grid-charts{grid-template-columns:1fr}
     .hide-sm{display:none}
     .search input{width:150px}
@@ -325,6 +334,10 @@
           <span>Renovantis<i class="doto" style="margin:0 0 0 6px"></i></span>
         </div>
       </div>
+      <button type="button" class="due" id="dueBox" title="Afficher / masquer les lots à facturer">
+        <span><span class="l-label">Dû à Renovantis · lots à facturer</span><span class="due-sub" id="kpiDueSub">—</span></span>
+        <span class="due-amt" id="kpiDue">—</span>
+      </button>
     </div>
   </div>
 </header>
@@ -895,6 +908,11 @@ function render(){
   document.getElementById("segAV").textContent=eur0(t.partAV);
   document.getElementById("segRN").textContent=eur0(t.partRN);
   document.getElementById("splitPct").textContent=Math.round(aPct)+" / "+Math.round(100-aPct);
+  // Dû à Renovantis : commission HT de tous les lots « À facturer », quel que soit le filtre
+  const due=all.filter(l=>l.statut==="À facturer"), tDue=totals(due), iva=+state.settings.iva||0;
+  document.getElementById("kpiDue").innerHTML=eur(tDue.partRN)+"<small>HT</small>";
+  document.getElementById("kpiDueSub").textContent=due.length+" lot"+(due.length>1?"s":"")+" · "+tDue.nb+" dossiers · "+eur(tDue.partRN*(1+iva/100))+" TTC";
+  document.getElementById("dueBox").classList.toggle("on",filter==="À facturer");
 
   renderChips(all);
   renderBars(vis);
@@ -1028,6 +1046,9 @@ function renderTable(lots, t){
 // ---------- events: list ----------
 document.getElementById("chips").addEventListener("click",e=>{
   const b=e.target.closest(".chip"); if(!b)return; filter=b.dataset.f; render();
+});
+document.getElementById("dueBox").addEventListener("click",()=>{
+  filter=filter==="À facturer"?"Tous":"À facturer"; render();
 });
 document.getElementById("search").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();render();});
 document.getElementById("tbody").addEventListener("click",e=>{
