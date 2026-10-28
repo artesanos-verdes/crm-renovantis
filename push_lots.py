@@ -73,6 +73,38 @@ LOTS = [
             ["Maria Rosario Salvachua", 46814, 293],
         ]),
     },
+    {
+        "ref": "CA20260156 · CL12", "vague": "CL 12", "ccaa": "Castilla y León", "date": "2026-03",
+        "statut": "À facturer", "part": "GreenFlex", "mode": "detail",
+        "prixKwh": 0.140, "pagoCEE": 174.30, "coutM2": 10, "splitAV": 0.5, "chargeLabel": "Pago CEE (€/dossier)",
+        "actuaciones": A([
+            ["Rufino Pelaez Rodriguez", 12738, 57], ["Jorge Rocha Vazquez", 14909, 84.3],
+            ["Ana María Joaquín Román", 26903, 122], ["María Esther Brito Baz", 19560, 112],
+            ["Antonia Alonso Lorenzo", 23473, 104], ["Maria Rosario Dieguez Lorenzo", 23306, 82.23],
+            ["María Isabel Tomás Tomás", 16872, 60], ["Vicente Guerra Rodríguez", 16984, 76],
+            ["Argelina Pelaez Pelaez", 12602, 65], ["Olegario Peláez Peláez", 23244, 101],
+            ["María de los Angeles Lagarejos Fernandez", 20280, 87], ["Trinidad Carracedo Bruña", 19385, 111],
+        ]),
+    },
+    {
+        "ref": "CA20260159 · CL2025 (2)", "vague": "CL 2025", "ccaa": "Castilla y León", "date": "2026-03",
+        "statut": "À facturer", "part": "GreenFlex", "mode": "detail",
+        "prixKwh": 0.140, "pagoCEE": 180.41, "coutM2": 10, "splitAV": 0.5, "chargeLabel": "Pago CEE (€/dossier)",
+        "actuaciones": A([
+            ["José Alfredo Pastrana Pastrana", 7169, 65.46, {"perito": "Termogenia", "pago": 180.41}],
+            ["Rafael Pedro García Díaz", 15228, 115.61, {"perito": "Termogenia", "pago": 180.41}],
+            ["Angel Pérez Rojo", 16102, 85, {"perito": "Termogenia", "pago": 180.41}],
+            ["Jesús Del Riego Muñoz", 21765, 86, {"perito": "Termogenia", "pago": 180.41}],
+            ["Jose Antonio Aller Cuesta", 5273, 25, {"perito": "Termogenia", "pago": 180.41}],
+            ["Julio Justo Blanco", 25387, 113.6, {"perito": "Icerti", "pago": 174.30}],
+        ]),
+    },
+    {
+        "ref": "CA20260421 · CL16", "vague": "CL 16", "ccaa": "Castilla y León", "date": "2026-06",
+        "statut": "À facturer", "part": "GreenFlex", "mode": "detail",
+        "prixKwh": 0.145, "pagoCEE": 174.30, "coutM2": 10, "splitAV": 0.5, "chargeLabel": "Pago CEE (€/dossier)",
+        "actuaciones": A([["Teolindo Escuredo Remesal", 12749, 73], ["Jose Luis Cuesta", 40189, 280.26]]),
+    },
 ]
 
 DOC = f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/documents/crm/state"
