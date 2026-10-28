@@ -31,8 +31,8 @@ def lot_id():
 
 
 def A(rows):
-    # [nom, kWh, m²] ou [nom, kWh, m², coût matériaux saisi]
-    return [{"p": r[0], "kwh": r[1], "m2": r[2], **({"mat": r[3]} if len(r) > 3 else {})} for r in rows]
+    # [nom, kWh, m²] ou [nom, kWh, m², {champs propres au dossier : pago, mat…}]
+    return [{"p": r[0], "kwh": r[1], "m2": r[2], **(r[3] if len(r) > 3 else {})} for r in rows]
 
 
 # --- Lots à insérer (ignorés s'ils existent déjà) ---
@@ -61,6 +61,16 @@ LOTS = [
             ["Judit Sabanes Ramirez (Juan Antonio Ferrero Matellanes)", 20519, 117], ["Luisa Boyano Gallego", 24500, 124],
             ["Antonio Benito Caballero (Natividad Fernandez Pelaez)", 22010, 97.55], ["Manuel Cabo Bernardo", 12938, 62],
             ["Piedad Gallego Romero (Mercedes Romero Romero)", 9904, 56],
+        ]),
+    },
+    {
+        "ref": "CA20260434 · Madrid 3", "vague": "Madrid 3", "ccaa": "Madrid", "date": "2026-06",
+        "statut": "À facturer", "part": "GreenFlex", "mode": "detail",
+        "prixKwh": 0.145, "pagoCEE": 145.20, "coutM2": 10, "splitAV": 0.5, "chargeLabel": "Pago CEE (€/dossier)",
+        "actuaciones": A([
+            ["Comunidad de propietarios C.P. C/ ZARZUELA, 5 (KARIMA)", 50273, 311, {"pago": 225.20}],
+            ["Pedro Gonzalez Mohino Solís Es1 Pl00 PtA", 4234, 26], ["Pedro Gonzalez Mohino Solís Es1 Pl00 PtB", 4234, 26],
+            ["Maria Rosario Salvachua", 46814, 293],
         ]),
     },
 ]

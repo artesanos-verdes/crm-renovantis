@@ -732,13 +732,22 @@ function seed(){
         ["Piedad Gallego Romero (Mercedes Romero Romero)",9904,56],
       ].map(a=>({p:a[0],kwh:a[1],m2:a[2]}))
     },
+    // 4 dossiers Comercial Renovantis ; Pago CEE Icerti 225,20 € pour la comunidad (act. 5), 145,20 € pour les autres
+    {id:id(), ref:"CA20260434 · Madrid 3", vague:"Madrid 3", ccaa:"Madrid", date:"2026-06", statut:"À facturer", part:"GreenFlex",
+      mode:"detail", prixKwh:0.145, pagoCEE:145.20, coutM2:10, splitAV:0.5, chargeLabel:"Pago CEE (€/dossier)",
+      actuaciones:[
+        ["Comunidad de propietarios C.P. C/ ZARZUELA, 5 (KARIMA)",50273,311,225.20],
+        ["Pedro Gonzalez Mohino Solís Es1 Pl00 PtA",4234,26], ["Pedro Gonzalez Mohino Solís Es1 Pl00 PtB",4234,26],
+        ["Maria Rosario Salvachua",46814,293],
+      ].map(a=>a[3]==null?{p:a[0],kwh:a[1],m2:a[2]}:{p:a[0],kwh:a[1],m2:a[2],pago:a[3]})
+    },
   ]};
 }
 function id(){return "l"+Math.random().toString(36).slice(2,9)}
 
 // Lots débloqués à verser dans la base partagée depuis le seed : importés une seule fois par réf GreenFlex
 // (state.imported en garde la trace, un lot supprimé ensuite ne revient pas)
-const PENDING_REFS=["CA20260414","CA20260308"];
+const PENDING_REFS=["CA20260414","CA20260308","CA20260434"];
 const refKey=r=>String(r||"").split(" · ")[0].toLowerCase().replace(/\s+/g,"");
 function importPending(){
   const done=state.imported||(state.imported=[]), lots=seed().lots; let changed=false;
